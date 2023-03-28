@@ -1,0 +1,33 @@
+# Java/Maven specific
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.properties
+
+# IDE specific
+*.iml
+*.ipr
+*.iws
+.idea/
+.vscode/
+.project
+.classpath
+.settings/
+*.launch
+*.xml
+
+# Logs and databases
+*.log
+*.log.*
+*.sqlite
+*.db
+*.h2.db
+*.hsql
+*.lck
