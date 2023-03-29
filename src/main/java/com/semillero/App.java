@@ -11,7 +11,11 @@ public class App
     public static void main( String[] args )
     {
         GUI_Cuenta gui = new GUI_Cuenta();
-        //gui.crearCuenta();
-        gui.listarCuentas();
+        // gui.crearCuenta();
+        // gui.listarCuentas();
+        // gui.eliminarCuenta();
+        // gui.listarCuentas();
+        // gui.buscarCuenta();
+        // gui.listarCuentas();
     }
 }

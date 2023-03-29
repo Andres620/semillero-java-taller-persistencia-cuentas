@@ -53,22 +53,22 @@ public class CuentasDB implements Repositorio{
             + "cantidad_retiros, cantidad_depositos, cantidad_transferencias_corriente_ahorro) "
             + "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-            PreparedStatement statement = conexion.prepareStatement(sentenciaSql);
-            statement.setString(1, cuenta.getTipo().toString());
-            statement.setString(2, cuenta.getNumeroCuenta());
-            statement.setFloat(3, cuenta.getSaldo());
-            statement.setString(4, cuenta.getPropietario());
-            statement.setInt(5, cuenta.getCantidadRetiros());
+            PreparedStatement sentencia = conexion.prepareStatement(sentenciaSql);
+            sentencia.setString(1, cuenta.getTipo().toString());
+            sentencia.setString(2, cuenta.getNumeroCuenta());
+            sentencia.setFloat(3, cuenta.getSaldo());
+            sentencia.setString(4, cuenta.getPropietario());
+            sentencia.setInt(5, cuenta.getCantidadRetiros());
 
             if (cuenta instanceof CuentaAhorros) {
-                statement.setInt(6, ((CuentaAhorros) cuenta).getCantidadDepositos());
-                statement.setNull(7, Types.INTEGER);
+                sentencia.setInt(6, ((CuentaAhorros) cuenta).getCantidadDepositos());
+                sentencia.setNull(7, Types.INTEGER);
             } else if (cuenta instanceof CuentaCorriente) {
-                statement.setNull(6, Types.INTEGER);
-                statement.setInt(7, ((CuentaCorriente) cuenta).getCantidadTransferenciasAhorros());
+                sentencia.setNull(6, Types.INTEGER);
+                sentencia.setInt(7, ((CuentaCorriente) cuenta).getCantidadTransferenciasAhorros());
             }
 
-            statement.executeUpdate();
+            sentencia.executeUpdate();
         } catch (SQLException e) {
             System.err.println("Error al agregar la cuenta:" + e);
         } catch (Exception e) {
@@ -77,21 +77,84 @@ public class CuentasDB implements Repositorio{
     }
 
     @Override
-    public void eliminar(String identificador) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'eliminar'");
+    public void eliminar(String numeroCuenta) {
+        try (Connection conexion = DriverManager.getConnection(cadenaConexion)) {
+            String sentenciaSql = "DELETE FROM cuentas WHERE numero_cuenta = ?;";
+            PreparedStatement sentencia = conexion.prepareStatement(sentenciaSql);
+
+            sentencia.setString(1, numeroCuenta);
+            sentencia.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Error al eliminar la cuenta: " + e.getMessage());
+        }
     }
 
     @Override
-    public void actualizar(Object objeto) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'actualizar'");
+    public void actualizar(String numeroCuenta, Object cuentaActualizada) {
+        try (Connection conexion = DriverManager.getConnection(cadenaConexion)) {
+            CuentaBancaria cuenta = (CuentaBancaria) cuentaActualizada;
+            String sentenciaSql = "UPDATE cuentas SET "
+                         + "tipo = ?, "
+                         + "numero_cuenta = ?, "
+                         + "saldo = ?, "
+                         + "propietario = ?, "
+                         + "cantidad_retiros = ?, "
+                         + "cantidad_depositos = ?, "
+                         + "cantidad_transferencias_corriente_ahorro = ? "
+                         + "WHERE id = ?;";
+                         
+            PreparedStatement sentencia = conexion.prepareStatement(sentenciaSql);
+            
+            sentencia.setString(1, cuenta.getTipo().toString());
+            sentencia.setString(2, cuenta.getNumeroCuenta());
+            sentencia.setDouble(3, cuenta.getSaldo());
+            sentencia.setString(4, cuenta.getPropietario());
+            sentencia.setInt(5, cuenta.getCantidadRetiros());
+            
+            if (cuenta instanceof CuentaAhorros) {
+                sentencia.setInt(6, ((CuentaAhorros) cuenta).getCantidadDepositos());
+                sentencia.setNull(7, Types.INTEGER);
+            } else if (cuenta instanceof CuentaCorriente) {
+                sentencia.setNull(6, Types.INTEGER);
+                sentencia.setInt(7, ((CuentaCorriente) cuenta).getCantidadTransferenciasAhorros());
+            }
+
+            sentencia.executeUpdate();
+            
+        } catch (SQLException e) {
+            System.out.println("Error al actualizar la cuenta"  + e.getMessage());
+        }
     }
 
     @Override
-    public Object buscar(String identificador) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'buscar'");
+    public Object buscar(String numCuenta) {
+        try (Connection conexion = DriverManager.getConnection(cadenaConexion)) {
+            String sentenciaSQL = "SELECT * FROM cuentas WHERE numero_cuenta = ?";
+            PreparedStatement sentencia = conexion.prepareStatement(sentenciaSQL);
+            sentencia.setString(1, numCuenta);
+            ResultSet respuesta = sentencia.executeQuery();
+            if (respuesta != null && respuesta.next()) {
+                CuentaBancaria cuenta = null;
+                TipoCuenta tipo =  TipoCuenta.valueOf(respuesta.getString("tipo")); 
+                String numeroCuenta = respuesta.getString("numero_cuenta"); 
+                Float saldo = respuesta.getFloat("saldo"); 
+                String propietario = respuesta.getString("propietario");
+                int cantidadRetiros = respuesta.getInt("cantidad_retiros");
+
+                if (tipo.equals(TipoCuenta.AHORROS)) {
+                    int cantidadDeposito = respuesta.getInt("cantidad_depositos");
+                    cuenta = new CuentaAhorros(numeroCuenta, saldo, propietario, tipo, cantidadRetiros, cantidadDeposito);
+                } else if (tipo.equals(TipoCuenta.CORRIENTE)) {
+                    int cantidadTransferenciasAhorros = respuesta.getInt("cantidad_transferencias_corriente_ahorro");
+                    cuenta = new CuentaCorriente(numeroCuenta, saldo, propietario, tipo, cantidadRetiros, cantidadTransferenciasAhorros);
+                }
+                return cuenta;
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error al buscar la cuenta: " + e);
+        }
+        return null;
     }
 
     @Override
