@@ -8,11 +8,18 @@ public class CuentaAhorros extends CuentaBancaria{
     private static final double PORCENTAJE_COBRO_TRANSFERENCIA_CORRIENTE = 0.015;
     private int cantidadDepositos;
     
-	public CuentaAhorros(String numeroCuenta, float saldo, String propietario) {
+    
+    public CuentaAhorros(String numeroCuenta, float saldo, String propietario) {
         super(numeroCuenta, saldo, propietario, TipoCuenta.AHORROS);
         cantidadDepositos = 0;
     }
-
+    
+    public CuentaAhorros(String numeroCuenta, float saldo, String propietario, TipoCuenta tipo, int cantidadRetiros,
+            int cantidadDepositos) {
+        super(numeroCuenta, saldo, propietario, tipo, cantidadRetiros);
+        this.cantidadDepositos = cantidadDepositos;
+    }
+    
     public static double getPorcentajeCobroTransferenciaCorriente() {
         return PORCENTAJE_COBRO_TRANSFERENCIA_CORRIENTE;
     }
