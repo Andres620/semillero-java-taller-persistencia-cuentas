@@ -79,7 +79,7 @@ public class CuentasDB implements Repositorio{
     @Override
     public void eliminar(String numeroCuenta) {
         try (Connection conexion = DriverManager.getConnection(cadenaConexion)) {
-            String sentenciaSql = "DELETE FROM Cuentas WHERE numero_cuenta = ?;";
+            String sentenciaSql = "DELETE FROM cuentas WHERE numero_cuenta = ?;";
             PreparedStatement sentencia = conexion.prepareStatement(sentenciaSql);
 
             sentencia.setString(1, numeroCuenta);
@@ -101,9 +101,34 @@ public class CuentasDB implements Repositorio{
     }
 
     @Override
-    public Object buscar(String identificador) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'buscar'");
+    public Object buscar(String numCuenta) {
+        try (Connection conexion = DriverManager.getConnection(cadenaConexion)) {
+            String sentenciaSQL = "SELECT * FROM cuentas WHERE numero_cuenta = ?";
+            PreparedStatement sentencia = conexion.prepareStatement(sentenciaSQL);
+            sentencia.setString(1, numCuenta);
+            ResultSet respuesta = sentencia.executeQuery();
+            if (respuesta != null && respuesta.next()) {
+                CuentaBancaria cuenta = null;
+                TipoCuenta tipo =  TipoCuenta.valueOf(respuesta.getString("tipo")); 
+                String numeroCuenta = respuesta.getString("numero_cuenta"); 
+                Float saldo = respuesta.getFloat("saldo"); 
+                String propietario = respuesta.getString("propietario");
+                int cantidadRetiros = respuesta.getInt("cantidad_retiros");
+
+                if (tipo.equals(TipoCuenta.AHORROS)) {
+                    int cantidadDeposito = respuesta.getInt("cantidad_depositos");
+                    cuenta = new CuentaAhorros(numeroCuenta, saldo, propietario, tipo, cantidadRetiros, cantidadDeposito);
+                } else if (tipo.equals(TipoCuenta.CORRIENTE)) {
+                    int cantidadTransferenciasAhorros = respuesta.getInt("cantidad_transferencias_corriente_ahorro");
+                    cuenta = new CuentaCorriente(numeroCuenta, saldo, propietario, tipo, cantidadRetiros, cantidadTransferenciasAhorros);
+                }
+                return cuenta;
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error al buscar la cuenta: " + e);
+        }
+        return null;
     }
 
     @Override
