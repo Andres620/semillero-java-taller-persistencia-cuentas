@@ -12,6 +12,7 @@ public class App
     {
         GUI_Cuenta gui = new GUI_Cuenta();
         //gui.crearCuenta();
-        gui.listarCuentas();
+        //gui.listarCuentas();
+        //gui.eliminarCuenta();
     }
 }

@@ -53,22 +53,22 @@ public class CuentasDB implements Repositorio{
             + "cantidad_retiros, cantidad_depositos, cantidad_transferencias_corriente_ahorro) "
             + "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-            PreparedStatement statement = conexion.prepareStatement(sentenciaSql);
-            statement.setString(1, cuenta.getTipo().toString());
-            statement.setString(2, cuenta.getNumeroCuenta());
-            statement.setFloat(3, cuenta.getSaldo());
-            statement.setString(4, cuenta.getPropietario());
-            statement.setInt(5, cuenta.getCantidadRetiros());
+            PreparedStatement sentencia = conexion.prepareStatement(sentenciaSql);
+            sentencia.setString(1, cuenta.getTipo().toString());
+            sentencia.setString(2, cuenta.getNumeroCuenta());
+            sentencia.setFloat(3, cuenta.getSaldo());
+            sentencia.setString(4, cuenta.getPropietario());
+            sentencia.setInt(5, cuenta.getCantidadRetiros());
 
             if (cuenta instanceof CuentaAhorros) {
-                statement.setInt(6, ((CuentaAhorros) cuenta).getCantidadDepositos());
-                statement.setNull(7, Types.INTEGER);
+                sentencia.setInt(6, ((CuentaAhorros) cuenta).getCantidadDepositos());
+                sentencia.setNull(7, Types.INTEGER);
             } else if (cuenta instanceof CuentaCorriente) {
-                statement.setNull(6, Types.INTEGER);
-                statement.setInt(7, ((CuentaCorriente) cuenta).getCantidadTransferenciasAhorros());
+                sentencia.setNull(6, Types.INTEGER);
+                sentencia.setInt(7, ((CuentaCorriente) cuenta).getCantidadTransferenciasAhorros());
             }
 
-            statement.executeUpdate();
+            sentencia.executeUpdate();
         } catch (SQLException e) {
             System.err.println("Error al agregar la cuenta:" + e);
         } catch (Exception e) {
@@ -77,9 +77,21 @@ public class CuentasDB implements Repositorio{
     }
 
     @Override
-    public void eliminar(String identificador) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'eliminar'");
+    public void eliminar(String numeroCuenta) {
+        try (Connection conexion = DriverManager.getConnection(cadenaConexion)) {
+            String sentenciaSql = "DELETE FROM Cuentas WHERE numero_cuenta = ?;";
+            PreparedStatement sentencia = conexion.prepareStatement(sentenciaSql);
+
+            sentencia.setString(1, numeroCuenta);
+            int filasEliminadas = sentencia.executeUpdate();
+            if (filasEliminadas > 0) {
+                System.out.println("Cuenta eliminada correctamente.");
+            } else {
+                System.out.println("No se encontró una cuenta con ese número de cuenta.");
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al eliminar la cuenta: " + e.getMessage());
+        }
     }
 
     @Override

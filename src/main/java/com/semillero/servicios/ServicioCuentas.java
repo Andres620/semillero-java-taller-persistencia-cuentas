@@ -21,4 +21,8 @@ public class ServicioCuentas {
     public List<CuentaBancaria> listarCuentas() {
         return (List<CuentaBancaria>) repositorioCuenta.listar();
     }
+
+    public void eliminarCuenta(String numeroCuenta) {
+        repositorioCuenta.eliminar(numeroCuenta);
+    }
 }
