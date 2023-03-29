@@ -15,6 +15,14 @@ public abstract class CuentaBancaria {
 		this.cantidadRetiros = 0;
 	}
 
+    public CuentaBancaria(String numeroCuenta, float saldo, String propietario, TipoCuenta tipo, int cantidadRetiros) {
+        this.numeroCuenta = numeroCuenta;
+        this.saldo = saldo;
+        this.propietario = propietario;
+        this.tipo = tipo;
+        this.cantidadRetiros = cantidadRetiros;
+    }
+
 	public String getNumeroCuenta() {
         return numeroCuenta;
     }
