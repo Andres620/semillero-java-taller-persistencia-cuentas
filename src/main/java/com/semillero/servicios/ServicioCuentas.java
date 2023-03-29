@@ -17,14 +17,13 @@ public class ServicioCuentas {
         repositorioCuenta.guardar(cuenta);
     }
 
-    public CuentaBancaria buscarCuenta(String numCuenta) throws Exception {
-        Object cuenta = repositorioCuenta.buscar(numCuenta);
+    public CuentaBancaria buscarCuenta(String numeroCuenta) throws Exception {
+        Object cuenta = repositorioCuenta.buscar(numeroCuenta);
         if(cuenta == null) {
             throw new Exception("No se encontro la cuenta");
         }
         return (CuentaBancaria) cuenta;
     }
-
 
     @SuppressWarnings("unchecked")
     public List<CuentaBancaria> listarCuentas() {
@@ -35,5 +34,8 @@ public class ServicioCuentas {
         repositorioCuenta.eliminar(numeroCuenta);
     }
 
+    public void actualizarCuenta(String numeroCuenta, CuentaBancaria cuenta) {
+        repositorioCuenta.actualizar(numeroCuenta, cuenta);
+    }
     
 }

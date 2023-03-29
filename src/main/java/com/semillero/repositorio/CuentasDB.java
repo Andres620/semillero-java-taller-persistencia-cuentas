@@ -83,21 +83,47 @@ public class CuentasDB implements Repositorio{
             PreparedStatement sentencia = conexion.prepareStatement(sentenciaSql);
 
             sentencia.setString(1, numeroCuenta);
-            int filasEliminadas = sentencia.executeUpdate();
-            if (filasEliminadas > 0) {
-                System.out.println("Cuenta eliminada correctamente.");
-            } else {
-                System.out.println("No se encontró una cuenta con ese número de cuenta.");
-            }
+            sentencia.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Error al eliminar la cuenta: " + e.getMessage());
         }
     }
 
     @Override
-    public void actualizar(Object objeto) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'actualizar'");
+    public void actualizar(String numeroCuenta, Object cuentaActualizada) {
+        try (Connection conexion = DriverManager.getConnection(cadenaConexion)) {
+            CuentaBancaria cuenta = (CuentaBancaria) cuentaActualizada;
+            String sentenciaSql = "UPDATE cuentas SET "
+                         + "tipo = ?, "
+                         + "numero_cuenta = ?, "
+                         + "saldo = ?, "
+                         + "propietario = ?, "
+                         + "cantidad_retiros = ?, "
+                         + "cantidad_depositos = ?, "
+                         + "cantidad_transferencias_corriente_ahorro = ? "
+                         + "WHERE id = ?;";
+                         
+            PreparedStatement sentencia = conexion.prepareStatement(sentenciaSql);
+            
+            sentencia.setString(1, cuenta.getTipo().toString());
+            sentencia.setString(2, cuenta.getNumeroCuenta());
+            sentencia.setDouble(3, cuenta.getSaldo());
+            sentencia.setString(4, cuenta.getPropietario());
+            sentencia.setInt(5, cuenta.getCantidadRetiros());
+            
+            if (cuenta instanceof CuentaAhorros) {
+                sentencia.setInt(6, ((CuentaAhorros) cuenta).getCantidadDepositos());
+                sentencia.setNull(7, Types.INTEGER);
+            } else if (cuenta instanceof CuentaCorriente) {
+                sentencia.setNull(6, Types.INTEGER);
+                sentencia.setInt(7, ((CuentaCorriente) cuenta).getCantidadTransferenciasAhorros());
+            }
+
+            sentencia.executeUpdate();
+            
+        } catch (SQLException e) {
+            System.out.println("Error al actualizar la cuenta"  + e.getMessage());
+        }
     }
 
     @Override
