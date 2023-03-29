@@ -3,10 +3,14 @@ package com.semillero.repositorio;
 import java.sql.*;
 import java.util.List;
 
-public class CuentaAhorrosDB implements Repositorio{
+import com.semillero.entidades.CuentaAhorros;
+import com.semillero.entidades.CuentaBancaria;
+import com.semillero.entidades.CuentaCorriente;
+
+public class CuentasDB implements Repositorio{
     private String cadenaConexion;
 
-    public CuentaAhorrosDB() {
+    public CuentasDB() {
         try {
             DriverManager.registerDriver(new org.sqlite.JDBC());
             cadenaConexion = "jdbc:sqlite:banco.db";
@@ -40,8 +44,34 @@ public class CuentaAhorrosDB implements Repositorio{
 
     @Override
     public void guardar(Object objeto) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'guardar'");
+        try (Connection conexion = DriverManager.getConnection(cadenaConexion)) {
+            CuentaBancaria cuenta = (CuentaBancaria) objeto;
+            String sentenciaSql = "INSERT INTO Cuentas (tipo, numero_cuenta, saldo, propietario, " 
+            + "cantidad_retiros, cantidad_depositos, cantidad_transferencias_corrite_ahorro) "
+            + "VALUES (?, ?, ?, ?, ?, ?)";
+
+            PreparedStatement statement = conexion.prepareStatement(sentenciaSql);
+            statement.setString(1, cuenta.getTipo().toString());
+            statement.setString(2, cuenta.getNumeroCuenta());
+            statement.setFloat(3, cuenta.getSaldo());
+            statement.setString(4, cuenta.getPropietario());
+            statement.setInt(5, cuenta.getCantidadRetiros());
+
+            if (cuenta instanceof CuentaAhorros) {
+                statement.setDouble(6, ((CuentaAhorros) cuenta).getCantidadDepositos());
+                statement.setNull(7, Types.INTEGER);
+            } else if (cuenta instanceof CuentaCorriente) {
+                statement.setNull(6, Types.INTEGER);
+                statement.setDouble(7, ((CuentaCorriente) cuenta).getCantidadTransferenciasAhorros());
+            }
+
+            Statement sentencia = conexion.createStatement();
+            sentencia.execute(sentenciaSql);
+        } catch (SQLException e) {
+            System.err.println("Error al agregar la cuenta:" + e);
+        } catch (Exception e) {
+            System.err.println("Error " + e.getMessage());
+        }
     }
 
     @Override

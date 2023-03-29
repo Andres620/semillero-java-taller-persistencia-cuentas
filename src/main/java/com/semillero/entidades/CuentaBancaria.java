@@ -5,11 +5,13 @@ public abstract class CuentaBancaria {
 	private float saldo;
 	private String propietario;
 	private int cantidadRetiros;
-	
-    public CuentaBancaria(String numeroCuenta, float saldo, String propietario) {
+    private TipoCuenta tipo;
+
+    public CuentaBancaria(String numeroCuenta, float saldo, String propietario, TipoCuenta tipo) {
 		this.numeroCuenta = numeroCuenta;
 		this.saldo = saldo;
 		this.propietario = propietario;
+        this.tipo = tipo;
 		this.cantidadRetiros = 0;
 	}
 
@@ -43,5 +45,13 @@ public abstract class CuentaBancaria {
 
     public void setCantidadRetiros(int cantidadRetiros) {
         this.cantidadRetiros = cantidadRetiros;
+    }
+
+    public TipoCuenta getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(TipoCuenta tipo) {
+        this.tipo = tipo;
     }
 }

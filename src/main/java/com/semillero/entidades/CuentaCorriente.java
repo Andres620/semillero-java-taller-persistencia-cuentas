@@ -6,8 +6,8 @@ public class CuentaCorriente extends CuentaBancaria{
     private static final double PORCENTAJE_COBRO_TRANSFERENCIA = 0.02;
     private int cantidadTransferenciasAhorros;
 
-    public CuentaCorriente(String numeroCuenta, float saldo, String propietario) {
-        super(numeroCuenta, saldo, propietario);
+    public CuentaCorriente(String numeroCuenta, float saldo, String propietario, TipoCuenta tipo) {
+        super(numeroCuenta, saldo, propietario, TipoCuenta.CORRIENTE);
         cantidadTransferenciasAhorros = 0;
     }
     

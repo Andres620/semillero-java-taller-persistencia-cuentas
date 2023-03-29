@@ -1,15 +1,15 @@
 package com.semillero.entidades;
 
 public class CuentaAhorros extends CuentaBancaria{
-	private static final int MAX_NUM_RETIROS = 3;
+    private static final int MAX_NUM_RETIROS = 3;
     private static final double PORCENTAJE_RETIROS = 0.01;
 	private static final double PORCENTAJE_DEPOSITO = 0.005;
     private static final double MAX_NUM_DEPOSITOS = 2;
     private static final double PORCENTAJE_COBRO_TRANSFERENCIA_CORRIENTE = 0.015;
     private int cantidadDepositos;
     
-    public CuentaAhorros(String numeroCuenta, float saldo, String propietario) {
-        super(numeroCuenta, saldo, propietario);
+	public CuentaAhorros(String numeroCuenta, float saldo, String propietario) {
+        super(numeroCuenta, saldo, propietario, TipoCuenta.AHORROS);
         cantidadDepositos = 0;
     }
 
