@@ -5,11 +5,11 @@ import java.util.List;
 public interface Repositorio {
     public void guardar(Object objeto);
 
-    public void eliminar(String identificador);
+    public void eliminar(String numeroCuenta);
 
-    public void actualizar(Object objeto);
+    public void actualizar(String numeroCuenta, Object objeto);
 
-    public Object buscar(String identificador);
+    public Object buscar(String numeroCuenta);
 
     public List<?> listar();
 }

@@ -31,6 +31,32 @@ public class GUI_Cuenta {
         servicioCuentas.guardarCuenta(cuenta);
     }
 
+    public void eliminarCuenta() {
+        System.out.println("Eliminar cuenta");
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Número de cuenta: ");
+        String numeroCuenta = scanner.nextLine();
+        try {
+            servicioCuentas.eliminarCuenta(numeroCuenta);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    
+    public void buscarCuenta() {
+        System.out.println("Buscar cuenta");
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Número de cuenta: ");
+        String numeroCuenta = scanner.nextLine();
+        try {
+            CuentaBancaria cuenta = servicioCuentas.buscarCuenta(numeroCuenta);
+            System.out.println("Cuenta encontrada " + cuenta.getNumeroCuenta() + ": " + cuenta.getPropietario());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
     public void listarCuentas() { //poner privado
         System.out.println("Listando cuentas");
         List<CuentaBancaria> cuentas = servicioCuentas.listarCuentas();
@@ -39,6 +65,8 @@ public class GUI_Cuenta {
             System.out.println("Cuenta " + cuenta.getNumeroCuenta() + ": " + cuenta.getPropietario());
         }
     }
+
+    
 
     
 }
