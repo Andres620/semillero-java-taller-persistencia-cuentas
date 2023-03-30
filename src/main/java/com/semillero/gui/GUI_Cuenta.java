@@ -29,8 +29,8 @@ public class GUI_Cuenta {
                 System.out.println("2. Buscar cuenta");
                 if (cuentaEncontrada) {
                     System.out.println("3. Retirar");
-                    System.out.println("4. Depositar - eliminar");
-                    System.out.println("5. Transferir - imprimir");
+                    System.out.println("4. Depositar");
+                    System.out.println("5. Transferir");
                     System.out.println("6. Ver saldo");
                 }
                 System.out.println("7. Salir");
@@ -81,8 +81,12 @@ public class GUI_Cuenta {
                     case 5:
                         // transferir
                         if (cuentaEncontrada) {
-                            listarCuentas();
-                            //transferir(cuentaActual);
+                            System.out.print("Ingrese el número de cuenta destino: ");
+                            String numeroCuentaDestino = scanner.nextLine();
+                            System.out.print("Ingrese el monto a depositar: ");
+                            Float monto = scanner.nextFloat();
+                            scanner.nextLine();
+                            transferir(cuentaActual, numeroCuentaDestino, monto);
                         } else {
                             System.out.println("No se ha encontrado ninguna cuenta");
                         }
@@ -170,6 +174,14 @@ public class GUI_Cuenta {
         try {
             servicioCuentas.depositar(cuenta, monto);
         } catch (DepositoException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void transferir(CuentaBancaria cuentaOrigen, String numeroCuentaDestino,float monto){
+        try {
+            servicioCuentas.transferir(cuentaOrigen, numeroCuentaDestino, monto);
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

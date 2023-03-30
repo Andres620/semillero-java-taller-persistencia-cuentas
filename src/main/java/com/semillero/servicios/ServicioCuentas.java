@@ -7,6 +7,7 @@ import com.semillero.entidades.CuentaBancaria;
 import com.semillero.entidades.CuentaCorriente;
 import com.semillero.excepciones.DepositoException;
 import com.semillero.excepciones.RetiroException;
+import com.semillero.excepciones.TransferenciaException;
 import com.semillero.repositorio.CuentasDB;
 import com.semillero.repositorio.Repositorio;
 
@@ -122,5 +123,57 @@ public class ServicioCuentas {
         ((CuentaAhorros)cuenta).setCantidadDepositos(((CuentaAhorros)cuenta).getCantidadDepositos() + 1);
         return actualizarCuenta(cuenta);
     }
-    
+
+    public boolean transferir(CuentaBancaria cuentaOrigen, String numeroCuentaDestino, float monto) throws Exception{
+        if (cuentaOrigen instanceof CuentaAhorros) {
+            return transferirDeAhorros(cuentaOrigen, numeroCuentaDestino, monto); 
+        } else if (cuentaOrigen instanceof CuentaCorriente) {
+            return transferirDeCorriente(cuentaOrigen, numeroCuentaDestino, monto);
+        }
+        return false;
+    }
+
+    private boolean transferirDeAhorros(CuentaBancaria cuentaOrigen, String numeroCuentaDestino, float monto) throws Exception {
+        if (monto <= 0) {
+            throw new TransferenciaException("El monto a transferir debe ser mayor a cero");
+        }
+        CuentaBancaria cuentaDestino = buscarCuenta(numeroCuentaDestino);
+        float saldoFinalOrigen = 0;
+        float saldoFinalDestino = 0;
+
+        if (cuentaDestino instanceof CuentaAhorros) {
+            saldoFinalOrigen = cuentaOrigen.getSaldo() - monto;
+            saldoFinalDestino = cuentaDestino.getSaldo() + monto;  
+        } else if (cuentaDestino instanceof CuentaCorriente) {  
+            saldoFinalOrigen = (float) (cuentaOrigen.getSaldo() - (monto + monto * CuentaAhorros.getPorcentajeCobroTransferenciaCorriente()));
+            saldoFinalDestino = cuentaDestino.getSaldo() + monto;
+        }
+        cuentaOrigen.setSaldo(saldoFinalOrigen);
+        cuentaDestino.setSaldo(saldoFinalDestino);
+        actualizarCuenta(cuentaOrigen);
+        actualizarCuenta(cuentaDestino);
+        return true;
+    }
+
+    private boolean transferirDeCorriente(CuentaBancaria cuentaOrigen, String numeroCuentaDestino, float monto) throws Exception {
+        if (monto <= 0) {
+            throw new TransferenciaException("El monto a transferir debe ser mayor a cero");
+        }
+        CuentaBancaria cuentaDestino = buscarCuenta(numeroCuentaDestino);
+        float saldoFinalOrigen = 0;
+        float saldoFinalDestino = 0;
+
+        if (cuentaDestino instanceof CuentaAhorros) {
+            if (((CuentaCorriente)cuentaOrigen).getCantidadTransferenciasAhorros() > CuentaCorriente.getMaxNumTransferenciasAhorro()){
+                return false;
+            }
+        }
+        saldoFinalOrigen = (float) (cuentaOrigen.getSaldo() - (monto + monto * CuentaCorriente.getPorcentajeCobroTransferencia()));
+        saldoFinalDestino = cuentaDestino.getSaldo() + monto;
+        cuentaOrigen.setSaldo(saldoFinalOrigen);
+        cuentaDestino.setSaldo(saldoFinalDestino);
+        actualizarCuenta(cuentaOrigen);
+        actualizarCuenta(cuentaDestino);
+        return true;
+    }
 }
