@@ -90,7 +90,7 @@ public class GUI_Cuenta {
                     case 6:
                         // ver saldo
                         if (cuentaEncontrada) {
-                            System.out.println("Saldo actual: " + cuentaActual.getSaldo());
+                            System.out.println("Saldo actual: " + consultarSaldo(cuentaActual));
                         } else {
                             System.out.println("No se ha encontrado ninguna cuenta");
                         }
@@ -172,6 +172,10 @@ public class GUI_Cuenta {
         } catch (DepositoException e) {
             e.printStackTrace();
         }
+    }
+
+    private float consultarSaldo(CuentaBancaria cuenta){
+        return cuenta.getSaldo();
     }
 
     private void salir() {
