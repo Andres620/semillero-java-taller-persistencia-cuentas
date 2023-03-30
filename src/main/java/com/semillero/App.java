@@ -2,10 +2,6 @@ package com.semillero;
 
 import com.semillero.gui.GUI_Cuenta;
 
-/**
- * Hello world!
- *
- */
 public class App 
 {
     public static void main( String[] args )
