@@ -90,40 +90,41 @@ public class CuentasDB implements Repositorio{
     }
 
     @Override
-    public void actualizar(String numeroCuenta, Object cuentaActualizada) {
+    public boolean actualizar(Object cuentaActualizada) {
         try (Connection conexion = DriverManager.getConnection(cadenaConexion)) {
             CuentaBancaria cuenta = (CuentaBancaria) cuentaActualizada;
             String sentenciaSql = "UPDATE cuentas SET "
                          + "tipo = ?, "
-                         + "numero_cuenta = ?, "
                          + "saldo = ?, "
                          + "propietario = ?, "
                          + "cantidad_retiros = ?, "
                          + "cantidad_depositos = ?, "
                          + "cantidad_transferencias_corriente_ahorro = ? "
-                         + "WHERE id = ?;";
+                         + "WHERE numero_cuenta = ?;";
                          
             PreparedStatement sentencia = conexion.prepareStatement(sentenciaSql);
             
             sentencia.setString(1, cuenta.getTipo().toString());
-            sentencia.setString(2, cuenta.getNumeroCuenta());
-            sentencia.setDouble(3, cuenta.getSaldo());
-            sentencia.setString(4, cuenta.getPropietario());
-            sentencia.setInt(5, cuenta.getCantidadRetiros());
+            sentencia.setDouble(2, cuenta.getSaldo());
+            sentencia.setString(3, cuenta.getPropietario());
+            sentencia.setInt(4, cuenta.getCantidadRetiros());
             
             if (cuenta instanceof CuentaAhorros) {
-                sentencia.setInt(6, ((CuentaAhorros) cuenta).getCantidadDepositos());
-                sentencia.setNull(7, Types.INTEGER);
-            } else if (cuenta instanceof CuentaCorriente) {
+                sentencia.setInt(5, ((CuentaAhorros) cuenta).getCantidadDepositos());
                 sentencia.setNull(6, Types.INTEGER);
-                sentencia.setInt(7, ((CuentaCorriente) cuenta).getCantidadTransferenciasAhorros());
+            } else if (cuenta instanceof CuentaCorriente) {
+                sentencia.setNull(5, Types.INTEGER);
+                sentencia.setInt(6, ((CuentaCorriente) cuenta).getCantidadTransferenciasAhorros());
             }
-
+            sentencia.setString(7, cuenta.getNumeroCuenta());
             sentencia.executeUpdate();
+            return true;
             
         } catch (SQLException e) {
             System.out.println("Error al actualizar la cuenta"  + e.getMessage());
         }
+        System.out.println("se metio al false");
+        return false;
     }
 
     @Override
