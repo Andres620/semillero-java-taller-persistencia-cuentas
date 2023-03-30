@@ -5,6 +5,7 @@ import java.util.List;
 import com.semillero.entidades.CuentaAhorros;
 import com.semillero.entidades.CuentaBancaria;
 import com.semillero.entidades.CuentaCorriente;
+import com.semillero.excepciones.DepositoException;
 import com.semillero.excepciones.RetiroException;
 import com.semillero.repositorio.CuentasDB;
 import com.semillero.repositorio.Repositorio;
@@ -87,6 +88,38 @@ public class ServicioCuentas {
         cuenta.setSaldo(saldoFinal);
         cuenta.setCantidadRetiros(cuenta.getCantidadRetiros() + 1);
         
+        return actualizarCuenta(cuenta);
+    }
+
+    public boolean depositar(CuentaBancaria cuenta, float monto) throws DepositoException{
+        if (cuenta instanceof CuentaAhorros) {
+            return depositarCuentaAhorros(cuenta, monto); 
+        } else if (cuenta instanceof CuentaCorriente) {
+            return depositarCuentaCorriente(cuenta, monto);
+        }
+        return false;
+    }
+
+    private boolean depositarCuentaAhorros(CuentaBancaria cuenta, float monto) throws DepositoException{
+        if (monto <= 0) {
+            throw new DepositoException("El monto a depositar debe ser mayor a cero");
+        }
+		if (((CuentaAhorros) cuenta).getCantidadDepositos() < CuentaAhorros.getMaxNumDepositos()) {
+			monto += monto * CuentaAhorros.getPorcentajeDeposito();
+		}
+		float saldoFinal = cuenta.getSaldo() + monto;
+        cuenta.setSaldo(saldoFinal);
+        ((CuentaAhorros)cuenta).setCantidadDepositos(((CuentaAhorros)cuenta).getCantidadDepositos() + 1);
+        return actualizarCuenta(cuenta);
+    }
+
+    private boolean depositarCuentaCorriente(CuentaBancaria cuenta, float monto) throws DepositoException{
+        if (monto <= 0) {
+            throw new DepositoException("El monto a depositar debe ser mayor a cero");
+        }
+		float saldoFinal = cuenta.getSaldo() + monto;
+        cuenta.setSaldo(saldoFinal);
+        ((CuentaAhorros)cuenta).setCantidadDepositos(((CuentaAhorros)cuenta).getCantidadDepositos() + 1);
         return actualizarCuenta(cuenta);
     }
     

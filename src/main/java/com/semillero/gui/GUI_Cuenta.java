@@ -5,6 +5,7 @@ import java.util.Scanner;
 
 import com.semillero.entidades.CuentaAhorros;
 import com.semillero.entidades.CuentaBancaria;
+import com.semillero.excepciones.DepositoException;
 import com.semillero.excepciones.RetiroException;
 import com.semillero.servicios.ServicioCuentas;
 
@@ -61,7 +62,6 @@ public class GUI_Cuenta {
                             System.out.print("Ingrese el monto a retirar: ");
                             Float monto = scanner.nextFloat();
                             scanner.nextLine();
-                            System.out.println(monto);
                             retirar(cuentaActual, monto);
                         } else {
                             System.out.println("No se ha encontrado ninguna cuenta");
@@ -70,8 +70,10 @@ public class GUI_Cuenta {
                     case 4:
                         // depositar
                         if (cuentaEncontrada) {
-                            eliminarCuenta();
-                            //depositar(cuentaActual);
+                            System.out.print("Ingrese el monto a depositar: ");
+                            Float monto = scanner.nextFloat();
+                            scanner.nextLine();
+                            depositar(cuentaActual, monto);
                         } else {
                             System.out.println("No se ha encontrado ninguna cuenta");
                         }
@@ -160,6 +162,14 @@ public class GUI_Cuenta {
         try {
             servicioCuentas.retirar(cuenta, monto);
         } catch (RetiroException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void depositar(CuentaBancaria cuenta, float monto){
+        try {
+            servicioCuentas.depositar(cuenta, monto);
+        } catch (DepositoException e) {
             e.printStackTrace();
         }
     }
