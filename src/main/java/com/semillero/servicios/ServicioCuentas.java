@@ -2,7 +2,11 @@ package com.semillero.servicios;
 
 import java.util.List;
 
+import com.semillero.entidades.CuentaAhorros;
 import com.semillero.entidades.CuentaBancaria;
+import com.semillero.entidades.CuentaCorriente;
+import com.semillero.excepciones.DepositoException;
+import com.semillero.excepciones.RetiroException;
 import com.semillero.repositorio.CuentasDB;
 import com.semillero.repositorio.Repositorio;
 
@@ -34,8 +38,89 @@ public class ServicioCuentas {
         repositorioCuenta.eliminar(numeroCuenta);
     }
 
-    public void actualizarCuenta(String numeroCuenta, CuentaBancaria cuenta) {
-        repositorioCuenta.actualizar(numeroCuenta, cuenta);
+    public boolean actualizarCuenta(CuentaBancaria cuenta) {
+        return repositorioCuenta.actualizar(cuenta);
+    }
+
+    public boolean retirar(CuentaBancaria cuenta, float monto) throws RetiroException{
+        if (cuenta instanceof CuentaAhorros) {
+            return retirarCuentaAhorros(cuenta, monto); 
+        } else if (cuenta instanceof CuentaCorriente) {
+            return retirarCuentaCorriente(cuenta, monto);
+        }
+        return false;
+    }
+
+    private boolean retirarCuentaAhorros(CuentaBancaria cuenta, float monto) throws RetiroException{
+        if (monto <= 0) {
+            throw new RetiroException("El monto a retirar debe ser mayor a cero");
+        }
+		if (cuenta.getSaldo() < monto) {
+			throw new RetiroException("Saldo insuficiente para realizar el retiro.");
+		}
+
+        float saldoFinal = cuenta.getSaldo() - monto;
+
+        if (cuenta.getCantidadRetiros() > CuentaAhorros.getMaxNumRetiros()) {
+            double comision = monto * CuentaAhorros.getPorcentajeRetiros();
+            saldoFinal -= comision;
+        }
+
+        cuenta.setSaldo(saldoFinal);
+        cuenta.setCantidadRetiros(cuenta.getCantidadRetiros() + 1);
+        
+        return actualizarCuenta(cuenta);
+    }
+
+    private boolean retirarCuentaCorriente(CuentaBancaria cuenta, float monto) throws RetiroException{
+        if (monto <= 0) {
+            throw new RetiroException("El monto a retirar debe ser mayor a cero");
+        }
+		if (cuenta.getSaldo() < monto) {
+			throw new RetiroException("Saldo insuficiente para realizar el retiro.");
+		}
+		if (cuenta.getCantidadRetiros() > CuentaCorriente.getMaxNumRetiros()) {
+			throw new RetiroException("Se ha alcanzado el máximo de retiros permitidos.");
+		}
+
+        float saldoFinal = cuenta.getSaldo() - monto;
+
+        cuenta.setSaldo(saldoFinal);
+        cuenta.setCantidadRetiros(cuenta.getCantidadRetiros() + 1);
+        
+        return actualizarCuenta(cuenta);
+    }
+
+    public boolean depositar(CuentaBancaria cuenta, float monto) throws DepositoException{
+        if (cuenta instanceof CuentaAhorros) {
+            return depositarCuentaAhorros(cuenta, monto); 
+        } else if (cuenta instanceof CuentaCorriente) {
+            return depositarCuentaCorriente(cuenta, monto);
+        }
+        return false;
+    }
+
+    private boolean depositarCuentaAhorros(CuentaBancaria cuenta, float monto) throws DepositoException{
+        if (monto <= 0) {
+            throw new DepositoException("El monto a depositar debe ser mayor a cero");
+        }
+		if (((CuentaAhorros) cuenta).getCantidadDepositos() < CuentaAhorros.getMaxNumDepositos()) {
+			monto += monto * CuentaAhorros.getPorcentajeDeposito();
+		}
+		float saldoFinal = cuenta.getSaldo() + monto;
+        cuenta.setSaldo(saldoFinal);
+        ((CuentaAhorros)cuenta).setCantidadDepositos(((CuentaAhorros)cuenta).getCantidadDepositos() + 1);
+        return actualizarCuenta(cuenta);
+    }
+
+    private boolean depositarCuentaCorriente(CuentaBancaria cuenta, float monto) throws DepositoException{
+        if (monto <= 0) {
+            throw new DepositoException("El monto a depositar debe ser mayor a cero");
+        }
+		float saldoFinal = cuenta.getSaldo() + monto;
+        cuenta.setSaldo(saldoFinal);
+        ((CuentaAhorros)cuenta).setCantidadDepositos(((CuentaAhorros)cuenta).getCantidadDepositos() + 1);
+        return actualizarCuenta(cuenta);
     }
     
 }

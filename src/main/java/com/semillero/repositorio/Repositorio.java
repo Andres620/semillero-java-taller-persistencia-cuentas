@@ -7,7 +7,7 @@ public interface Repositorio {
 
     public void eliminar(String numeroCuenta);
 
-    public void actualizar(String numeroCuenta, Object objeto);
+    public boolean actualizar(Object objeto);
 
     public Object buscar(String numeroCuenta);
 
